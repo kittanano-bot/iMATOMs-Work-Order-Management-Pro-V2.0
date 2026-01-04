@@ -1,0 +1,2015 @@
+<!doctype html>
+<html lang="th" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iMATOMs - Work Order Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&amp;family=Sarabun:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+        body { box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17,24,39,0.95);
+            --accent-cyan: #00f5ff;
+            --accent-purple: #a855f7;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255,255,255,0.6);
+            --border-color: rgba(0,245,255,0.2);
+        }
+        
+        .light-mode {
+            --bg-primary: #e8ecf0;
+            --bg-secondary: #f5f7fa;
+            --bg-card: rgba(255,255,255,0.95);
+            --accent-cyan: #0891b2;
+            --accent-purple: #7c3aed;
+            --text-primary: #1e293b;
+            --text-secondary: rgba(30,41,59,0.7);
+            --border-color: rgba(8,145,178,0.25);
+        }
+        
+        * { font-family: 'Sarabun', sans-serif; }
+        .font-display { font-family: 'Orbitron', monospace; }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        body:not(.light-mode) {
+            background: linear-gradient(180deg, #0a0e17 0%, #0f1629 50%, #0a0e17 100%);
+        }
+        
+        body.light-mode {
+            background: linear-gradient(180deg, #e8ecf0 0%, #f0f4f8 50%, #e8ecf0 100%);
+        }
+        
+        .cyber-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .cyber-card:hover {
+            border-color: rgba(0,245,255,0.4);
+            box-shadow: 0 0 30px rgba(0,245,255,0.1);
+        }
+        
+        .cyber-btn {
+            background: linear-gradient(135deg, rgba(0,245,255,0.2) 0%, rgba(168,85,247,0.2) 100%);
+            border: 1px solid rgba(0,245,255,0.4);
+            color: var(--accent-cyan);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cyber-btn:hover {
+            background: linear-gradient(135deg, rgba(0,245,255,0.3) 0%, rgba(168,85,247,0.3) 100%);
+            box-shadow: 0 0 20px rgba(0,245,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .cyber-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .cyber-btn-success {
+            background: linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.1) 100%);
+            border-color: rgba(16,185,129,0.4);
+            color: var(--accent-green);
+        }
+        
+        .cyber-btn-danger {
+            background: linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.1) 100%);
+            border-color: rgba(239,68,68,0.4);
+            color: #ef4444;
+        }
+        
+        .cyber-btn-orange {
+            background: linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(245,158,11,0.1) 100%);
+            border-color: rgba(245,158,11,0.4);
+            color: var(--accent-orange);
+        }
+        
+        .cyber-btn-purple {
+            background: linear-gradient(135deg, rgba(168,85,247,0.2) 0%, rgba(168,85,247,0.1) 100%);
+            border-color: rgba(168,85,247,0.4);
+            color: var(--accent-purple);
+        }
+        
+        .cyber-btn-blue {
+            background: linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.1) 100%);
+            border-color: rgba(59,130,246,0.4);
+            color: var(--accent-blue);
+        }
+        
+        .cyber-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .light-mode .cyber-input { background: rgba(255,255,255,0.8); }
+        
+        .cyber-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0,245,255,0.2);
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        
+        .nav-item:hover {
+            color: var(--accent-cyan);
+            background: rgba(0,245,255,0.1);
+        }
+        
+        .nav-item.active {
+            color: var(--accent-cyan);
+            background: rgba(0,245,255,0.15);
+            border: 1px solid var(--border-color);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0,245,255,0.1) 0%, rgba(168,85,247,0.1) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .data-table th {
+            background: rgba(0,245,255,0.1);
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            font-size: 12px;
+        }
+        
+        .data-table tr:hover td {
+            background: rgba(0,245,255,0.05);
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .badge-pending { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+        .badge-process { background: rgba(59,130,246,0.2); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+        .badge-complete { background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+        .badge-urgent { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .badge-medium { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+        .badge-low { background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.3); border-radius: 3px; }
+        
+        .page { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .page.active { display: block; opacity: 1; }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0,245,255,0.2);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .sidebar-toggle-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            color: var(--accent-cyan);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-toggle-btn:hover {
+            background: rgba(0,245,255,0.15);
+            transform: scale(1.05);
+        }
+        
+        .datetime-display {
+            text-align: center;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
+        
+        .datetime-display .time {
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        
+        .datetime-display .date {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .form-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .wo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .wo-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,245,255,0.15);
+        }
+        
+        .wo-card.urgent { border-left: 4px solid #ef4444; }
+        .wo-card.medium { border-left: 4px solid #f59e0b; }
+        .wo-card.low { border-left: 4px solid #10b981; }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+        
+        .kanban-column {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 400px;
+        }
+        
+        .kanban-header {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .signature-canvas {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            cursor: crosshair;
+        }
+        
+        .master-data-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .master-data-header {
+            padding: 16px;
+            background: rgba(0,245,255,0.1);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .master-data-content {
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+        }
+        
+        .tab-btn.active {
+            background: rgba(0,245,255,0.15);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: rgba(0,245,255,0.05);
+        }
+        
+        .import-dropzone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .import-dropzone:hover,
+        .import-dropzone.dragover {
+            border-color: var(--accent-cyan);
+            background: rgba(0,245,255,0.05);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, rgba(0,245,255,0.1) 0%, rgba(168,85,247,0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full">
+  <div class="flex h-full overflow-hidden"><!-- Sidebar -->
+   <nav class="w-64 border-r flex flex-col p-3 shrink-0 overflow-y-auto" style="background: rgba(0,0,0,0.4); border-color: var(--border-color);"><!-- Logo -->
+    <div class="mb-4 p-3">
+     <div class="flex items-center justify-between mb-2">
+      <div>
+       <h1 class="font-display text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-400">RELIABILITY</h1>
+       <p class="text-xs" style="color: var(--text-secondary);">WORK ORDER Management</p>
+      </div>
+      <div class="flex gap-2"><button class="sidebar-toggle-btn" onclick="toggleLanguage()" title="Switch Language"> <span id="lang-indicator" class="font-bold text-sm">TH</span> </button> <button class="sidebar-toggle-btn" onclick="toggleTheme()" title="Toggle Theme"> <i class="fa-solid fa-sun" id="theme-icon"></i> </button>
+      </div>
+     </div>
+    </div><!-- Navigation -->
+    <div class="flex-1 space-y-1">
+     <div class="text-xs uppercase tracking-wider px-3 py-2" style="color: var(--text-secondary);">
+      Main Menu
+     </div>
+     <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard"><i class="fa-solid fa-chart-pie w-4"></i><span>Dashboard</span>
+     </div>
+     <div class="nav-item" onclick="showPage('request')" data-page="request"><i class="fa-solid fa-plus-circle w-4"></i><span>แจ้งซ่อม</span>
+     </div>
+     <div class="nav-item" onclick="showPage('helpdesk')" data-page="helpdesk"><i class="fa-solid fa-headset w-4"></i><span>รับแจ้ง &amp; มอบหมาย</span>
+     </div>
+     <div class="nav-item" onclick="showPage('technician')" data-page="technician"><i class="fa-solid fa-wrench w-4"></i><span>ปิดงาน &amp; ส่งมอบ</span>
+     </div>
+     <div class="nav-item" onclick="showPage('kanban')" data-page="kanban"><i class="fa-solid fa-columns w-4"></i><span>Kanban Board</span>
+     </div>
+     <div class="nav-item" onclick="showPage('history')" data-page="history"><i class="fa-solid fa-history w-4"></i><span>ประวัติงาน</span>
+     </div>
+     <div class="text-xs uppercase tracking-wider px-3 py-2 mt-3" style="color: var(--text-secondary);">
+      Analytics
+     </div>
+     <div class="nav-item" onclick="showPage('staff-util')" data-page="staff-util"><i class="fa-solid fa-user-clock w-4"></i><span>Staff Utilization</span>
+     </div>
+     <div class="nav-item" onclick="showPage('mttbf-mttr')" data-page="mttbf-mttr"><i class="fa-solid fa-chart-line w-4"></i><span>MTBF &amp; MTTR</span>
+     </div>
+     <div class="text-xs uppercase tracking-wider px-3 py-2 mt-3" style="color: var(--text-secondary);">
+      Database
+     </div>
+     <div class="nav-item" onclick="showPage('database')" data-page="database"><i class="fa-solid fa-database w-4"></i><span>Master Data</span>
+     </div>
+     <div class="mt-4 pt-4 border-t" style="border-color: var(--border-color);">
+     <div class="text-xs uppercase tracking-wider px-4 py-2" style="color: var(--text-secondary);">
+       Navigation
+      </div><a href="#" onclick="goBack()" class="nav-item"> <i class="fa-solid fa-arrow-left w-5"></i> <span>Back to iMATOMs</span> </a>
+     </div>
+    </div><!-- DateTime -->
+    <div class="pt-3 border-t" style="border-color: var(--border-color);">
+     <div class="datetime-display">
+      <div class="time" id="current-time">
+       00:00:00
+      </div>
+      <div class="date" id="current-date">
+       Loading...
+      </div>
+     </div>
+    </div>
+   </nav><!-- Main Content -->
+   <main class="flex-1 overflow-auto p-6"><!-- DASHBOARD PAGE -->
+    <section id="page-dashboard" class="page active">
+     <header class="mb-6">
+      <h2 class="font-display text-2xl font-bold mb-1" style="color: var(--text-primary);">📊 WORK ORDER DASHBOARD</h2>
+      <p class="text-sm" style="color: var(--text-secondary);">ภาพรวมใบแจ้งซ่อมและสถานะงาน</p>
+     </header><!-- Stats Cards -->
+     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+      <div class="stat-card">
+       <div class="flex items-center justify-between mb-2">
+        <div class="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center"><i class="fa-solid fa-clipboard-list text-xl" style="color: var(--accent-cyan);"></i>
+        </div>
+       </div>
+       <div class="text-2xl font-display font-bold" id="stat-total" style="color: var(--accent-cyan);">
+        0
+       </div>
+       <div class="text-xs" style="color: var(--text-secondary);">
+        Total WO
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="flex items-center justify-between mb-2">
+        <div class="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center"><i class="fa-solid fa-clock text-xl text-orange-400"></i>
+        </div>
+       </div>
+       <div class="text-2xl font-display font-bold text-orange-400" id="stat-pending">
+        0
+       </div>
+       <div class="text-xs" style="color: var(--text-secondary);">
+        Pending
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="flex items-center justify-between mb-2">
+        <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center"><i class="fa-solid fa-tools text-xl text-blue-400"></i>
+        </div>
+       </div>
+       <div class="text-2xl font-display font-bold text-blue-400" id="stat-process">
+        0
+       </div>
+       <div class="text-xs" style="color: var(--text-secondary);">
+        On Process
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="flex items-center justify-between mb-2">
+        <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center"><i class="fa-solid fa-check-circle text-xl text-green-400"></i>
+        </div>
+       </div>
+       <div class="text-2xl font-display font-bold text-green-400" id="stat-complete">
+        0
+       </div>
+       <div class="text-xs" style="color: var(--text-secondary);">
+        Completed
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="flex items-center justify-between mb-2">
+        <div class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center"><i class="fa-solid fa-exclamation-triangle text-xl text-red-400"></i>
+        </div>
+       </div>
+       <div class="text-2xl font-display font-bold text-red-400" id="stat-urgent">
+        0
+       </div>
+       <div class="text-xs" style="color: var(--text-secondary);">
+        Urgent
+       </div>
+      </div>
+     </div><!-- Charts -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="cyber-card p-5">
+       <h3 class="font-display text-base mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-chart-pie mr-2" style="color: var(--accent-cyan);"></i>Status Overview</h3>
+       <div class="chart-container">
+        <canvas id="chart-status"></canvas>
+       </div>
+      </div>
+      <div class="cyber-card p-5">
+       <h3 class="font-display text-base mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-chart-bar mr-2" style="color: var(--accent-cyan);"></i>By System</h3>
+       <div class="chart-container">
+        <canvas id="chart-system"></canvas>
+       </div>
+      </div>
+     </div><!-- Recent WO -->
+     <div class="cyber-card p-5">
+      <div class="flex items-center justify-between mb-4">
+       <h3 class="font-display text-base" style="color: var(--text-primary);"><i class="fa-solid fa-list mr-2" style="color: var(--accent-cyan);"></i>Recent Work Orders</h3><button onclick="showPage('request')" class="cyber-btn text-sm py-2"> <i class="fa-solid fa-plus"></i> New </button>
+      </div>
+      <div class="overflow-x-auto">
+       <table class="data-table">
+        <thead>
+         <tr>
+          <th>WO No.</th>
+          <th>Date</th>
+          <th>Building</th>
+          <th>Area</th>
+          <th>Job</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Act</th>
+         </tr>
+        </thead>
+        <tbody id="recent-wo-table">
+         <tr>
+          <td colspan="8" class="text-center py-6" style="color: var(--text-secondary);">No work orders yet</td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </div>
+    </section><!-- USER REQUEST PAGE -->
+    <section id="page-request" class="page">
+     <header class="mb-6">
+      <h2 class="font-display text-2xl font-bold mb-1" style="color: var(--text-primary);">📝 แจ้งซ่อม (User Request)</h2>
+      <p class="text-sm" style="color: var(--text-secondary);">ระบบแจ้งซ่อมจาก User</p>
+     </header>
+     <div class="cyber-card p-6">
+      <form id="request-form">
+       <div class="form-grid">
+        <div class="form-group"><label for="req-date">วันที่แจ้ง *</label> <input type="date" id="req-date" class="cyber-input" required>
+        </div>
+        <div class="form-group"><label for="req-time">เวลาแจ้งซ่อม *</label> <input type="time" id="req-time" class="cyber-input" required>
+        </div>
+        <div class="form-group"><label for="req-building">อาคาร *</label> <select id="req-building" class="cyber-input" required> <option value="">-- เลือกอาคาร --</option> <option value="ViMUT">ViMUT Hospital</option> <option value="ViMUT Phahonyothin">ViMUT Phahonyothin</option> <option value="Theptarin">Theptarin Hospital</option> </select>
+        </div>
+        <div class="form-group"><label for="req-floor">ชั้น *</label> <select id="req-floor" class="cyber-input" required><option value="">-- เลือกชั้น --</option></select>
+        </div>
+        <div class="form-group"><label for="req-main-area">พื้นที่แจ้งงาน *</label> <select id="req-main-area" class="cyber-input" required onchange="updateDepartmentFromArea()"> <option value="">-- เลือกพื้นที่ --</option> </select>
+        </div>
+        <div class="form-group"><label for="req-department">แผนก</label> <input type="text" id="req-department" class="cyber-input" placeholder="(Auto-fill)" readonly>
+        </div>
+        <div class="form-group"><label for="req-type-area">ประเภทพื้นที่ *</label> <select id="req-type-area" class="cyber-input" required><option value="">-- เลือกประเภท --</option></select>
+        </div>
+        <div class="form-group"><label for="req-room">หมายเลขห้อง</label> <input type="text" id="req-room" class="cyber-input" placeholder="เช่น 501">
+        </div>
+        <div class="form-group col-span-full"><label for="req-job-detail">รายละเอียดงานที่แจ้ง *</label> <textarea id="req-job-detail" class="cyber-input" rows="3" placeholder="อธิบายปัญหา..." required></textarea>
+        </div>
+        <div class="form-group"><label for="req-emergency">Code Emergency</label> <select id="req-emergency" class="cyber-input"><option value="No Code">No Code</option></select>
+        </div>
+        <div class="form-group"><label for="req-period">ช่วงเวลา</label> <select id="req-period" class="cyber-input"> <option value="Normal time">Normal time</option> <option value="Urgently time">Urgently time</option> </select>
+        </div>
+        <div class="form-group"><label for="req-priority">ความสำคัญ *</label> <select id="req-priority" class="cyber-input" required> <option value="Low>15min">Low (&gt;15 นาที)</option> <option value="Medium<15min">Medium (&lt;15 นาที)</option> <option value="High<5min">High (&lt;5 นาที)</option> <option value="Critical">Critical</option> </select>
+        </div>
+        <div class="form-group"><label for="req-staff-name">ชื่อผู้แจ้งงาน *</label> <input type="text" id="req-staff-name" class="cyber-input" placeholder="ชื่อ-นามสกุล" required>
+        </div>
+        <div class="form-group"><label for="req-phone">เบอร์โทรผู้แจ้ง</label> <input type="tel" id="req-phone" class="cyber-input" placeholder="0XX-XXX-XXXX">
+        </div>
+       </div>
+       <div class="flex gap-3 mt-6"><button type="submit" id="submit-request-btn" class="cyber-btn cyber-btn-success flex-1 py-3"> <i class="fa-solid fa-paper-plane"></i> ส่งใบแจ้งซ่อม </button> <button type="button" onclick="clearRequestForm()" class="cyber-btn cyber-btn-danger"> <i class="fa-solid fa-times"></i> ล้าง </button>
+       </div>
+      </form>
+     </div>
+    </section><!-- HELPDESK PAGE -->
+    <section id="page-helpdesk" class="page">
+     <header class="mb-6">
+      <h2 class="font-display text-2xl font-bold mb-1" style="color: var(--text-primary);">🎧 รับแจ้งงาน &amp; มอบหมายช่าง</h2>
+      <p class="text-sm" style="color: var(--text-secondary);">Helpdesk - รับงานและมอบหมายช่างซ่อม</p>
+     </header>
+     <div class="cyber-card p-5 mb-6">
+      <h3 class="font-display text-base mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-inbox mr-2 text-orange-400"></i>งานรอรับ (Pending)</h3>
+      <div id="pending-wo-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+       <div class="text-center py-8 col-span-full" style="color: var(--text-secondary);"><i class="fa-solid fa-inbox text-4xl mb-3 opacity-30"></i>
+        <p>ไม่มีงานรอรับ</p>
+       </div>
+      </div>
+     </div>
+    </section><!-- TECHNICIAN PAGE -->
+    <section id="page-technician" class="page">
+     <header class="mb-6">
+      <h2 class="font-display text-2xl font-bold mb-1" style="color: var(--text-primary);">🔧 ปิดงานซ่อม &amp; ส่งมอบงาน</h2>
+      <p class="text-sm" style="color: var(--text-secondary);">Technician - บันทึกผลการซ่อมและปิดงาน</p>
+     </header>
+     <div class="cyber-card p-5 mb-6">
+      <h3 class="font-display text-base mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-tools mr-2 text-blue-400"></i>งานกำลังดำเนินการ (On Process)</h3>
+      <div id="process-wo-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+       <div class="text-center py-8 col-span-full" style="color: var(--text-secondary);"><i class="fa-solid fa-tools text-4xl mb-3 opacity-30"></i>
+        <p>ไม่มีงานกำลังดำเนินการ</p>
+       </div>
+      </div>
+     </div>
+    </section><!-- KANBAN PAGE -->
+    <section id="page-kanban" class="page">
+     <header class="mb-6">
+      <h2 class="font-display text-2xl font-bold mb-1" style="color: var(--text-primary);">📋 Kanban Board</h2>
+      <p class="text-sm" style="color: var(--text-secondary);">แสดงสถานะงานแบบ Kanban</p>
+     </header>
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="kanban-column">
+       <div class="kanban-header" style="background: rgba(245,158,11,0.2);"><span class="text-orange-400"><i class="fa-solid fa-clock mr-2"></i>Pending</span> <span id="kanban-pending-count" class="badge badge-pending">0</span>
+       </div>
+       <div id="kanban-pending" class="space-y-3"></div>
+      </div>
+      <div class="kanban-column">
+       <div class="kanban-header" style="background: rgba(59,130,246,0.2);"><span class="text-blue-400"><i class="fa-solid fa-tools mr-2"></i>On Process</span> <span id="kanban-process-count" class="badge badge-process">0</span>
+       </div>
+       <div id="kanban-process" class="space-y-3"></div>
+      </div>
+      <div class="kanban-column">
+       <div class="kanban-header" style="background: rgba(16,185,129,0.2);"><span class="text-green-400"><i class="fa-solid fa-check-circle mr-2"></i>Completed</span> <span id="kanban-complete-count" class="badge badge-complete">0</span>
+       </div>
+       <div id="kanban-complete" class="space-y-3"></div>
+      </div>
+     </div>
+    </section><!-- HISTORY PAGE -->
+    <section id="page-history" class="page">
+     <header class="mb-6">
+      <h2 class="font-display text-2xl font-bold mb-1" style="color: var(--text-primary);">📜 ประวัติงาน</h2>
+      <p class="text-sm" style="color: var(--text-secondary);">ประวัติใบแจ้งซ่อมทั้งหมด</p>
+     </header>
+     <div class="cyber-card p-4 mb-4">
+      <div class="flex gap-3 flex-wrap"><input type="text" id="history-search" class="cyber-input max-w-xs" placeholder="ค้นหา..." oninput="filterHistory()"> <select id="history-status" class="cyber-input w-auto" onchange="filterHistory()"> <option value="">ทุกสถานะ</option> <option value="Pending">Pending</option> <option value="On Process">On Process</option> <option value="Complete">Complete</option> </select>
+      </div>
+     </div>
+     <div class="cyber-card overflow-hidden">
+      <div class="overflow-x-auto" style="max-height: 500px;">
+       <table class="data-table">
+        <thead>
+         <tr>
+          <th>WO No.</th>
+          <th>Date</th>
+          <th>Building</th>
+          <th>Area</th>
+          <th>Job</th>
+          <th>Staff</th>
+          <th>Tech</th>
+          <th>Priority</th>
+          <th>Status</th>
+         </tr>
+        </thead>
+        <tbody id="history-table">
+         <tr>
+          <td colspan="9" class="text-center py-8" style="color: var(--text-secondary);">No work orders found</td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </div>
+    </section><!-- STAFF UTILIZATION PAGE -->
+    <section id="page-staff-util" class="page">
+     <header class="mb-6">
+      <h2 class="font-display text-2xl font-bold mb-1" style="color: var(--text-primary);">👥 Staff Utilization Analysis</h2>
+      <p class="text-sm" style="color: var(--text-secondary);">วิเคราะห์การใช้งานบุคลากร</p>
+     </header>
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="metric-card">
+       <div class="text-xs mb-1" style="color: var(--text-secondary);">
+        Total Staff
+       </div>
+       <div class="text-2xl font-display font-bold" style="color: var(--accent-cyan);" id="staff-total">
+        8
+       </div>
+      </div>
+      <div class="metric-card">
+       <div class="text-xs mb-1" style="color: var(--text-secondary);">
+        Active Today
+       </div>
+       <div class="text-2xl font-display font-bold text-green-400" id="staff-active">
+        0
+       </div>
+      </div>
+      <div class="metric-card">
+       <div class="text-xs mb-1" style="color: var(--text-secondary);">
+        Avg Jobs/Staff
+       </div>
+       <div class="text-2xl font-display font-bold text-blue-400" id="staff-avg-jobs">
+        0
+       </div>
+      </div>
+      <div class="metric-card">
+       <div class="text-xs mb-1" style="color: var(--text-secondary);">
+        Total Hours
+       </div>
+       <div class="text-2xl font-display font-bold text-purple-400" id="staff-total-hours">
+        0
+       </div>
+      </div>
+     </div>
+     <div class="cyber-card p-5 mb-6">
+      <h3 class="font-display text-base mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-chart-bar mr-2" style="color: var(--accent-cyan);"></i>Staff Workload</h3>
+      <div class="chart-container">
+       <canvas id="chart-staff-util"></canvas>
+      </div>
+     </div>
+     <div class="cyber-card p-5">
+      <h3 class="font-display text-base mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-users mr-2" style="color: var(--accent-cyan);"></i>Staff Performance</h3>
+      <div id="staff-performance-list" class="space-y-3"></div>
+     </div>
+    </section><!-- MTBF/MTTR PAGE -->
+    <section id="page-mttbf-mttr" class="page">
+     <header class="mb-6">
+      <h2 class="font-display text-2xl font-bold mb-1" style="color: var(--text-primary);">📈 MTBF &amp; MTTR Analysis</h2>
+      <p class="text-sm" style="color: var(--text-secondary);">Mean Time Between Failures &amp; Mean Time To Repair</p>
+     </header>
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="metric-card">
+       <div class="text-xs mb-1" style="color: var(--text-secondary);">
+        MTBF (Hours)
+       </div>
+       <div class="text-2xl font-display font-bold" style="color: var(--accent-cyan);" id="mtbf-value">
+        -
+       </div>
+       <div class="text-xs text-green-400 mt-1">
+        Mean Time Between Failures
+       </div>
+      </div>
+      <div class="metric-card">
+       <div class="text-xs mb-1" style="color: var(--text-secondary);">
+        MTTR (Minutes)
+       </div>
+       <div class="text-2xl font-display font-bold text-orange-400" id="mttr-value">
+        -
+       </div>
+       <div class="text-xs text-orange-400 mt-1">
+        Mean Time To Repair
+       </div>
+      </div>
+      <div class="metric-card">
+       <div class="text-xs mb-1" style="color: var(--text-secondary);">
+        Availability %
+       </div>
+       <div class="text-2xl font-display font-bold text-green-400" id="availability-value">
+        -
+       </div>
+       <div class="text-xs text-green-400 mt-1">
+        System Availability
+       </div>
+      </div>
+      <div class="metric-card">
+       <div class="text-xs mb-1" style="color: var(--text-secondary);">
+        Total Failures
+       </div>
+       <div class="text-2xl font-display font-bold text-red-400" id="total-failures">
+        0
+       </div>
+       <div class="text-xs text-red-400 mt-1">
+        This Month
+       </div>
+      </div>
+     </div>
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="cyber-card p-5">
+       <h3 class="font-display text-base mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-chart-line mr-2" style="color: var(--accent-cyan);"></i>MTTR by System</h3>
+       <div class="chart-container">
+        <canvas id="chart-mttr-system"></canvas>
+       </div>
+      </div>
+      <div class="cyber-card p-5">
+       <h3 class="font-display text-base mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-chart-area mr-2" style="color: var(--accent-cyan);"></i>Failure Trend</h3>
+       <div class="chart-container">
+        <canvas id="chart-failure-trend"></canvas>
+       </div>
+      </div>
+     </div>
+     <div class="cyber-card p-5">
+      <h3 class="font-display text-base mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-cogs mr-2" style="color: var(--accent-cyan);"></i>System Reliability</h3>
+      <div id="system-reliability-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+     </div>
+    </section><!-- DATABASE PAGE -->
+    <section id="page-database" class="page">
+     <header class="mb-6">
+      <h2 class="font-display text-2xl font-bold mb-1" style="color: var(--text-primary);">🗄️ Master Data</h2>
+      <p class="text-sm" style="color: var(--text-secondary);">ข้อมูลหลักสำหรับระบบ Work Order (สามารถเพิ่ม/Import ข้อมูลได้)</p>
+     </header><!-- Tabs -->
+     <div class="flex flex-wrap gap-2 mb-6"><button class="tab-btn active" onclick="showDBTab('basic')">Basic Data</button> <button class="tab-btn" onclick="showDBTab('departments')">Departments</button> <button class="tab-btn" onclick="showDBTab('equipment')">Equipment</button> <button class="tab-btn" onclick="showDBTab('import')">Import Data</button>
+     </div><!-- Basic Data Tab -->
+     <div id="db-tab-basic" class="db-tab">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><!-- Floors -->
+       <div class="master-data-card">
+        <div class="master-data-header">
+         <h3 class="font-display text-sm flex items-center gap-2"><i class="fa-solid fa-layer-group text-cyan-400"></i>Floors</h3><button onclick="openAddModal('floors')" class="cyber-btn text-xs py-1 px-3"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="master-data-content">
+         <div id="db-floors" class="space-y-2"></div>
+        </div>
+       </div><!-- Type Areas -->
+       <div class="master-data-card">
+        <div class="master-data-header">
+         <h3 class="font-display text-sm flex items-center gap-2"><i class="fa-solid fa-tags text-green-400"></i>Type Areas</h3><button onclick="openAddModal('typeAreas')" class="cyber-btn text-xs py-1 px-3"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="master-data-content">
+         <div id="db-types" class="space-y-2"></div>
+        </div>
+       </div><!-- Staff -->
+       <div class="master-data-card">
+        <div class="master-data-header">
+         <h3 class="font-display text-sm flex items-center gap-2"><i class="fa-solid fa-users text-orange-400"></i>Staff</h3><button onclick="openAddModal('staff')" class="cyber-btn text-xs py-1 px-3"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="master-data-content">
+         <div id="db-staff" class="space-y-2"></div>
+        </div>
+       </div><!-- Work Groups -->
+       <div class="master-data-card">
+        <div class="master-data-header">
+         <h3 class="font-display text-sm flex items-center gap-2"><i class="fa-solid fa-briefcase text-blue-400"></i>Work Groups</h3>
+        </div>
+        <div class="master-data-content">
+         <div id="db-groups" class="space-y-2"></div>
+        </div>
+       </div><!-- System Work -->
+       <div class="master-data-card">
+        <div class="master-data-header">
+         <h3 class="font-display text-sm flex items-center gap-2"><i class="fa-solid fa-cogs text-red-400"></i>System Work</h3>
+        </div>
+        <div class="master-data-content">
+         <div id="db-systems" class="space-y-2"></div>
+        </div>
+       </div><!-- Separate Detail Work Order (NEW) -->
+       <div class="master-data-card">
+        <div class="master-data-header">
+         <h3 class="font-display text-sm flex items-center gap-2"><i class="fa-solid fa-list-check text-purple-400"></i>Separate Detail</h3><button onclick="openAddModal('separateDetail')" class="cyber-btn text-xs py-1 px-3"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="master-data-content">
+         <div id="db-separate" class="space-y-2"></div>
+        </div>
+       </div><!-- Emergency Codes -->
+       <div class="master-data-card md:col-span-2 lg:col-span-3">
+        <div class="master-data-header">
+         <h3 class="font-display text-sm flex items-center gap-2"><i class="fa-solid fa-exclamation-triangle text-red-400"></i>Emergency Codes</h3>
+        </div>
+        <div class="master-data-content">
+         <div id="db-emergency" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2"></div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Departments Tab (NEW) -->
+     <div id="db-tab-departments" class="db-tab hidden">
+      <div class="cyber-card p-5 mb-4">
+       <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display text-base" style="color: var(--text-primary);"><i class="fa-solid fa-building mr-2" style="color: var(--accent-cyan);"></i>Main Department Data</h3><button onclick="openAddModal('departments')" class="cyber-btn text-sm"> <i class="fa-solid fa-plus"></i> Add Department </button>
+       </div>
+       <div class="overflow-x-auto">
+        <table class="data-table">
+         <thead>
+          <tr>
+           <th>Main Area</th>
+           <th>Department</th>
+           <th>Floor</th>
+           <th>Type Area</th>
+           <th>Internal Tel</th>
+           <th>External Tel</th>
+           <th>Actions</th>
+          </tr>
+         </thead>
+         <tbody id="db-departments-table"></tbody>
+        </table>
+       </div>
+      </div>
+     </div><!-- Equipment Tab (NEW) -->
+     <div id="db-tab-equipment" class="db-tab hidden">
+      <div class="cyber-card p-5 mb-4">
+       <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display text-base" style="color: var(--text-primary);"><i class="fa-solid fa-microchip mr-2" style="color: var(--accent-cyan);"></i>Equipment List</h3><button onclick="openAddModal('equipment')" class="cyber-btn text-sm"> <i class="fa-solid fa-plus"></i> Add Equipment </button>
+       </div>
+       <div class="overflow-x-auto">
+        <table class="data-table">
+         <thead>
+          <tr>
+           <th>Equipment Name</th>
+           <th>Floor</th>
+           <th>Dept</th>
+           <th>Sub Area</th>
+           <th>System</th>
+           <th>Sub-System</th>
+           <th>Group</th>
+           <th>Code</th>
+           <th>Actions</th>
+          </tr>
+         </thead>
+         <tbody id="db-equipment-table"></tbody>
+        </table>
+       </div>
+      </div>
+     </div><!-- Import Tab (NEW) -->
+     <div id="db-tab-import" class="db-tab hidden">
+      <div class="cyber-card p-6">
+       <h3 class="font-display text-lg mb-4" style="color: var(--text-primary);"><i class="fa-solid fa-file-import mr-2" style="color: var(--accent-cyan);"></i>Import Data from Excel</h3>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div><label class="block text-sm mb-2" style="color: var(--text-secondary);">Select Data Type to Import</label> <select id="import-type" class="cyber-input mb-4"> <option value="departments">Departments</option> <option value="equipment">Equipment</option> <option value="staff">Staff</option> </select>
+         <div class="import-dropzone" id="import-dropzone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('import-file').click()"><i class="fa-solid fa-cloud-arrow-up text-4xl mb-3" style="color: var(--accent-cyan);"></i>
+          <p style="color: var(--text-primary);">Drop Excel file here or click to browse</p>
+          <p class="text-xs mt-2" style="color: var(--text-secondary);">Supports .xlsx, .xls files</p><input type="file" id="import-file" accept=".xlsx,.xls" hidden onchange="handleFileSelect(event)">
+         </div>
+        </div>
+        <div>
+         <h4 class="text-sm font-bold mb-3" style="color: var(--text-primary);">Expected Column Format:</h4>
+         <div id="import-format-info" class="p-4 rounded-lg text-sm" style="background: rgba(0,0,0,0.3);">
+          <p class="mb-2"><strong>For Departments:</strong></p>
+          <ul class="list-disc list-inside text-xs space-y-1" style="color: var(--text-secondary);">
+           <li>Main Area (พื้นที่)</li>
+           <li>Main Department (แผนก)</li>
+           <li>Main Floor (ชั้น)</li>
+           <li>Type_Area (ประเภทพื้นที่)</li>
+           <li>เบอร์โทรภายใน_รพ.</li>
+           <li>ติดต่อจากภายนอก_รพ.</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div id="import-preview" class="mt-6 hidden">
+        <h4 class="text-sm font-bold mb-3" style="color: var(--text-primary);">Preview Import Data:</h4>
+        <div class="overflow-x-auto max-h-64 border rounded-lg" style="border-color: var(--border-color);">
+         <table class="data-table" id="import-preview-table"></table>
+        </div>
+        <div class="flex gap-3 mt-4"><button onclick="confirmImport()" class="cyber-btn cyber-btn-success"> <i class="fa-solid fa-check"></i> Confirm Import </button> <button onclick="cancelImport()" class="cyber-btn cyber-btn-danger"> <i class="fa-solid fa-times"></i> Cancel </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section>
+   </main>
+  </div><!-- Modals --> <!-- Assign Modal -->
+  <div id="assign-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+   <div class="cyber-card p-6 w-full max-w-lg">
+    <div class="flex items-center justify-between mb-4">
+     <h3 class="font-display text-lg" style="color: var(--text-primary);">มอบหมายงาน</h3><button onclick="closeModal('assign-modal')" class="text-2xl" style="color: var(--text-secondary);">×</button>
+    </div>
+    <div id="assign-wo-info" class="mb-4 p-4 rounded-lg" style="background: rgba(0,245,255,0.1);"></div>
+    <form id="assign-form"><input type="hidden" id="assign-wo-id">
+     <div class="form-grid">
+      <div class="form-group"><label for="assign-evaluate">การดำเนินการ</label> <select id="assign-evaluate" class="cyber-input" required> <option value="Receive">รับงาน</option> <option value="Forward">ส่งต่อ</option> <option value="Reject">ปฏิเสธ</option> </select>
+      </div>
+      <div class="form-group"><label for="assign-helpdesk">ผู้รับแจ้ง</label> <select id="assign-helpdesk" class="cyber-input" required></select>
+      </div>
+      <div class="form-group"><label for="assign-tech">มอบหมายช่าง</label> <select id="assign-tech" class="cyber-input" required></select>
+      </div>
+      <div class="form-group"><label for="assign-time">เวลารับงาน</label> <input type="time" id="assign-time" class="cyber-input">
+      </div>
+     </div>
+     <div class="flex gap-3 mt-6"><button type="submit" class="cyber-btn cyber-btn-success flex-1"><i class="fa-solid fa-check"></i> ยืนยัน</button> <button type="button" onclick="closeModal('assign-modal')" class="cyber-btn cyber-btn-danger">ยกเลิก</button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Complete Modal -->
+  <div id="complete-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+   <div class="cyber-card p-6 w-full max-w-2xl max-h-[90%] overflow-auto">
+    <div class="flex items-center justify-between mb-4">
+     <h3 class="font-display text-lg" style="color: var(--text-primary);">ปิดงานซ่อม</h3><button onclick="closeModal('complete-modal')" class="text-2xl" style="color: var(--text-secondary);">×</button>
+    </div>
+    <div id="complete-wo-info" class="mb-4 p-4 rounded-lg" style="background: rgba(0,245,255,0.1);"></div>
+    <form id="complete-form"><input type="hidden" id="complete-wo-id">
+     <div class="form-grid">
+      <div class="form-group"><label>วันที่ดำเนินการ</label> <input type="date" id="comp-date" class="cyber-input" required>
+      </div>
+      <div class="form-group"><label>เวลาเริ่ม</label> <input type="time" id="comp-start" class="cyber-input" required>
+      </div>
+      <div class="form-group"><label>เวลาเสร็จ</label> <input type="time" id="comp-finish" class="cyber-input" required>
+      </div>
+      <div class="form-group"><label>จำนวนช่าง</label> <input type="number" id="comp-manpower" class="cyber-input" value="1" min="1">
+      </div>
+      <div class="form-group"><label>ลักษณะงาน</label> <select id="comp-category" class="cyber-input" required></select>
+      </div>
+      <div class="form-group"><label>ระบบงาน</label> <select id="comp-system" class="cyber-input" required></select>
+      </div>
+      <div class="form-group"><label>Separate Detail</label> <select id="comp-separate" class="cyber-input"></select>
+      </div>
+      <div class="form-group"><label>รหัสอุปกรณ์</label> <select id="comp-equipment" class="cyber-input"></select>
+      </div>
+      <div class="form-group col-span-full"><label>รายละเอียดงานที่แก้ไข</label> <textarea id="comp-detail" class="cyber-input" rows="2" required></textarea>
+      </div>
+      <div class="form-group"><label>ค่าแรง (บาท)</label> <input type="number" id="comp-labour" class="cyber-input" value="0" min="0">
+      </div>
+      <div class="form-group"><label>อะไหล่</label> <input type="text" id="comp-spare" class="cyber-input">
+      </div>
+      <div class="form-group"><label>จำนวนอะไหล่</label> <input type="number" id="comp-spare-amount" class="cyber-input" value="0" min="0">
+      </div>
+      <div class="form-group"><label>ราคาอะไหล่</label> <input type="number" id="comp-spare-cost" class="cyber-input" value="0" min="0">
+      </div>
+      <div class="form-group"><label>ผลสรุป</label> <select id="comp-result" class="cyber-input" required> <option value="Complete">Complete</option> <option value="Pending Parts">รออะไหล่</option> <option value="Need Follow-up">ต้องติดตาม</option> </select>
+      </div>
+      <div class="form-group"><label>ความพึงพอใจ</label> <select id="comp-satisfy" class="cyber-input"> <option value="Excellent">Excellent</option> <option value="Good" selected>Good</option> <option value="Fair">Fair</option> <option value="Poor">Poor</option> </select>
+      </div>
+      <div class="form-group col-span-full"><label>หมายเหตุ</label> <textarea id="comp-note" class="cyber-input" rows="2"></textarea>
+      </div>
+     </div>
+     <div class="flex gap-3 mt-6"><button type="submit" class="cyber-btn cyber-btn-success flex-1"><i class="fa-solid fa-check-double"></i> ปิดงาน</button> <button type="button" onclick="closeModal('complete-modal')" class="cyber-btn cyber-btn-danger">ยกเลิก</button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Add Data Modal -->
+  <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+   <div class="cyber-card p-6 w-full max-w-lg">
+    <div class="flex items-center justify-between mb-4">
+     <h3 class="font-display text-lg" id="add-modal-title" style="color: var(--text-primary);">Add Data</h3><button onclick="closeModal('add-modal')" class="text-2xl" style="color: var(--text-secondary);">×</button>
+    </div>
+    <form id="add-form"><input type="hidden" id="add-type">
+     <div id="add-form-fields"></div>
+     <div class="flex gap-3 mt-6"><button type="submit" class="cyber-btn cyber-btn-success flex-1"><i class="fa-solid fa-plus"></i> Add</button> <button type="button" onclick="closeModal('add-modal')" class="cyber-btn cyber-btn-danger">Cancel</button>
+     </div>
+    </form>
+   </div>
+  </div><!-- WO Detail Modal -->
+  <div id="wo-detail-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+   <div class="cyber-card p-6 w-full max-w-2xl max-h-[90%] overflow-auto">
+    <div class="flex items-center justify-between mb-4">
+     <h3 class="font-display text-lg" style="color: var(--text-primary);">Work Order Details</h3><button onclick="closeModal('wo-detail-modal')" class="text-2xl" style="color: var(--text-secondary);">×</button>
+    </div>
+    <div id="wo-detail-content"></div>
+   </div>
+  </div><!-- Toast -->
+  <div id="toast" class="fixed top-6 right-6 z-50 hidden">
+   <div class="cyber-card px-6 py-4 flex items-center gap-3"><i id="toast-icon" class="fa-solid fa-check-circle text-green-400 text-xl"></i> <span id="toast-message" style="color: var(--text-primary);"></span>
+   </div>
+  </div>
+  <script>
+    // ============================================
+    // MASTER DATA
+    // ============================================
+    
+    const masterData = {
+        floors: ['B4', 'B3', 'B2', 'B1', '1M', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'],
+        
+        mainAreas: [
+            'ที่จอดรถB4', 'ห้องเครื่องFirepumpและถังเก็บน้ำใต้ดินB4', 'ห้องน้ำส่วนกลางชายB4',
+            'ห้องน้ำส่วนกลางหญิงชั้นB4', 'ห้องน้ำส่วนกลางคนพิการB4', 'ที่จอดรถB3', 'คลังพัสดุB3', 'ห้องน้ำส่วนกลางชายB3'
+        ],
+        
+        typeAreas: ['Clinic-IPD', 'Clinic-OPD', 'Toilet', 'Common Area', 'Office', 'Technical Room', 'Carparking', 'Storage', 'Main Equipment Room'],
+        
+        staff: ['นางสาวศิริลักษณ์ มาคำ', 'นางสาวปทุมรัตน์ ยศสุวรรณ', 'นางสาวศศิกานต์ แก้วใส', 'นางสาววรรณวิภา ขันคำ', 
+                'นายสุทธิพงศ์ ทุมภา', 'นายพีรพัฒน์ หงษ์คงคา', 'นายวิชัย สมบูรณ์', 'นายประเสริฐ แก้วมณี'],
+        
+        groups: [
+            { code: 'RM', name: 'Reactive Maintenance', desc: 'งานซ่อมแซมฉุกเฉิน' },
+            { code: 'BD', name: 'Breakdown', desc: 'งานเครื่องเสีย' },
+            { code: 'CM', name: 'Corrective Maintenance', desc: 'งานซ่อมแก้ไข' },
+            { code: 'MP', name: 'Minor Project', desc: 'งานโครงการเล็ก' }
+        ],
+        
+        systems: [
+            { code: 'AC', name: 'Air Conditioning' }, { code: 'SN', name: 'Sanitary' },
+            { code: 'EL', name: 'Electrical' }, { code: 'FP', name: 'Fire Protection' },
+            { code: 'BMS', name: 'Building Management' }, { code: 'EE', name: 'Electrical Power' }, { code: 'OTH', name: 'Others' }
+        ],
+        
+        emergencyCodes: [
+            { code: 'No Code', desc: 'ไม่มี Emergency', color: 'green' },
+            { code: 'Code_1', desc: 'ลักพาตัว', color: 'red' },
+            { code: 'Code_2C', desc: 'สารเคมีรั่วไหล', color: 'orange' },
+            { code: 'Code_2E', desc: 'แผ่นดินไหว', color: 'orange' },
+            { code: 'Code_2F', desc: 'อุทกภัย', color: 'blue' },
+            { code: 'Code_3', desc: 'เพลิงไหม้', color: 'red' },
+            { code: 'Code_4', desc: 'ระเบิด', color: 'red' },
+            { code: 'Code_5', desc: 'ก๊าซรั่ว', color: 'orange' },
+            { code: 'Code_Blue', desc: 'ผู้ป่วยหัวใจหยุดเต้น', color: 'blue' }
+        ],
+        
+        // NEW: Separate Detail Work Order
+        separateDetail: [
+            { code: 'Replacement', name: 'Replacement', desc: 'เปลี่ยนอะไหล่บางรายการ' },
+            { code: 'Adjustment', name: 'Adjustment', desc: 'ปรับแต่งระดับ' },
+            { code: 'Lubricant', name: 'Lubricant', desc: 'การหล่อลื่น' },
+            { code: 'Cleaning', name: 'Cleaning', desc: 'ทำความสะอาด' },
+            { code: 'Tighten', name: 'Tighten', desc: 'ขันกวดยึดให้แน่น' },
+            { code: 'Condition Base', name: 'Condition Base', desc: 'วัดค่า' },
+            { code: 'Design Out', name: 'Design Out', desc: 'เปลี่ยนเครื่องจักรใหม่ทั้งชุด' }
+        ],
+        
+        // NEW: Departments with full details
+        departments: [
+            { mainArea: 'ที่จอดรถB4', department: 'หน่วยรักษาความปลอดภัย(Security)', floor: 'B4', typeArea: 'Carparking', internalTel: '3832', externalTel: '02-079-0187' },
+            { mainArea: 'ห้องเครื่องFirepumpและถังเก็บน้ำใต้ดินB4', department: 'ช่างอาคาร(Engineering)', floor: 'B4', typeArea: 'Main Equipment Room', internalTel: '3831', externalTel: '02-0790184, 098-7728504' },
+            { mainArea: 'ห้องน้ำส่วนกลางชายB4', department: 'แม่บ้าน(Cleaning)', floor: 'B4', typeArea: 'Toilet', internalTel: '3860', externalTel: '02-0790188, 084-114-8205' },
+            { mainArea: 'ห้องน้ำส่วนกลางหญิงชั้นB4', department: 'แม่บ้าน(Cleaning)', floor: 'B4', typeArea: 'Toilet', internalTel: '3860', externalTel: '02-0790188, 084-114-8205' },
+            { mainArea: 'ห้องน้ำส่วนกลางคนพิการB4', department: 'แม่บ้าน(Cleaning)', floor: 'B4', typeArea: 'Toilet', internalTel: '3860', externalTel: '02-0790188, 084-114-8205' },
+            { mainArea: 'ที่จอดรถB3', department: 'หน่วยรักษาความปลอดภัย(Security)', floor: 'B4', typeArea: 'Carparking', internalTel: '3832', externalTel: '02-079-0187' },
+            { mainArea: 'คลังพัสดุB3', department: 'แผนกคลังพัสดุ', floor: 'B3', typeArea: 'Office', internalTel: '4321', externalTel: '' },
+            { mainArea: 'ห้องน้ำส่วนกลางชายB3', department: 'แม่บ้าน(Cleaning)', floor: 'B3', typeArea: 'Toilet', internalTel: '3860', externalTel: '02-0790188, 084-114-8205' }
+        ],
+        
+        // NEW: Equipment List
+        equipment: [
+            { name: 'HVO(OutdoorMetalEnclosure2IN/2OUTNO.1', floor: 'G', dept: 'ENGINEERING', subArea: 'OUTDOOR', system: 'EE', subSystem: 'HVO', group: 'ELECTRICAL POWER SYSTEM', code: 'VMH-G-HV-001' },
+            { name: 'HV2IN/2OUTNO.1', floor: '2', dept: 'ENGINEERING', subArea: 'ห้อง MDB', system: 'EE', subSystem: 'HV', group: 'ELECTRICAL POWER SYSTEM', code: 'VMH-2-HV-001' }
+        ]
+    };
+    
+    // ============================================
+    // STATE & CONFIG
+    // ============================================
+    
+    const defaultConfig = { app_title: 'iMATOMs - Work Order Management' };
+    let allData = [];
+    let woCounter = 1;
+    let isDarkMode = true;
+    let currentWO = null;
+    let importData = null;
+    let chartStatus, chartSystem, chartStaffUtil, chartMttrSystem, chartFailureTrend;
+    
+    // ============================================
+    // SDK INIT
+    // ============================================
+    
+    const dataHandler = {
+        onDataChanged(data) {
+            allData = data.filter(d => d.type === 'workorder');
+            woCounter = allData.length + 1;
+            renderAll();
+        }
+    };
+    
+    async function initApp() {
+        if (window.elementSdk) {
+            await window.elementSdk.init({
+                defaultConfig,
+                onConfigChange: async (config) => { document.title = config.app_title || defaultConfig.app_title; },
+                mapToCapabilities: () => ({ recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined }),
+                mapToEditPanelValues: (config) => new Map([['app_title', config.app_title || defaultConfig.app_title]])
+            });
+        }
+        if (window.dataSdk) { await window.dataSdk.init(dataHandler); }
+        
+        populateDropdowns();
+        renderMasterData();
+        setDefaultDates();
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        if (localStorage.getItem('theme') === 'light') toggleTheme();
+        renderAll();
+    }
+    
+    // ============================================
+    // HELPERS
+    // ============================================
+    
+    function generateWONumber() {
+        const now = new Date();
+        const year = now.getFullYear().toString().slice(-2);
+        return `RM${year}-${String(woCounter).padStart(5, '0')}`;
+    }
+    
+    function updateDateTime() {
+        const now = new Date();
+        const timeEl = document.getElementById('current-time');
+        const dateEl = document.getElementById('current-date');
+        if (timeEl) timeEl.textContent = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        if (dateEl) dateEl.textContent = now.toLocaleDateString('th-TH', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    
+    function setDefaultDates() {
+        const today = new Date().toISOString().split('T')[0];
+        const now = new Date().toTimeString().slice(0, 5);
+        ['req-date', 'comp-date'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
+        ['req-time', 'assign-time'].forEach(id => { const el = document.getElementById(id); if (el) el.value = now; });
+    }
+    
+    function toggleTheme() {
+        isDarkMode = !isDarkMode;
+        document.documentElement.classList.toggle('light-mode', !isDarkMode);
+        document.body.classList.toggle('light-mode', !isDarkMode);
+        document.getElementById('theme-icon').className = isDarkMode ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        renderCharts();
+    }
+    
+    function showPage(pageId) {
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.page === pageId));
+        document.querySelectorAll('.page').forEach(page => page.classList.toggle('active', page.id === `page-${pageId}`));
+        if (pageId === 'staff-util') renderStaffUtilization();
+        if (pageId === 'mttbf-mttr') renderMTBFMTTR();
+    }
+    
+    function goBack() {
+        showToast('Navigating back to iMATOMs...', 'https://kittanano-bot.github.io/iMATOMs-AI-Analytics-Pro-V2.0/');
+    }
+
+    function showDBTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', ['basic', 'departments', 'equipment', 'import'][i] === tabId));
+        document.querySelectorAll('.db-tab').forEach(tab => tab.classList.add('hidden'));
+        document.getElementById(`db-tab-${tabId}`).classList.remove('hidden');
+    }
+    
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+    
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toast-icon');
+        const icons = { success: 'fa-check-circle text-green-400', error: 'fa-times-circle text-red-400', warning: 'fa-exclamation-triangle text-yellow-400', info: 'fa-info-circle text-blue-400' };
+        icon.className = `fa-solid ${icons[type]} text-xl`;
+        document.getElementById('toast-message').textContent = message;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+    
+    function getPriorityClass(priority) {
+        if (priority?.includes('Critical') || priority?.includes('High')) return 'urgent';
+        if (priority?.includes('Medium')) return 'medium';
+        return 'low';
+    }
+    
+    function getStatusBadge(status) {
+        return { 'Pending': 'badge-pending', 'On Process': 'badge-process', 'Complete': 'badge-complete' }[status] || 'badge-pending';
+    }
+    
+    function updateDepartmentFromArea() {
+        const area = document.getElementById('req-main-area').value;
+        const dept = masterData.departments.find(d => d.mainArea === area);
+        document.getElementById('req-department').value = dept ? dept.department : '';
+    }
+    
+    // ============================================
+    // POPULATE DROPDOWNS
+    // ============================================
+    
+    function populateDropdowns() {
+        const floorSelect = document.getElementById('req-floor');
+        masterData.floors.forEach(f => floorSelect.innerHTML += `<option value="${f}">${f}</option>`);
+        
+        const areaSelect = document.getElementById('req-main-area');
+        masterData.mainAreas.forEach(a => areaSelect.innerHTML += `<option value="${a}">${a}</option>`);
+        
+        const typeSelect = document.getElementById('req-type-area');
+        masterData.typeAreas.forEach(t => typeSelect.innerHTML += `<option value="${t}">${t}</option>`);
+        
+        const emergencySelect = document.getElementById('req-emergency');
+        emergencySelect.innerHTML = '';
+        masterData.emergencyCodes.forEach(e => emergencySelect.innerHTML += `<option value="${e.code}">${e.code} - ${e.desc}</option>`);
+        
+        const helpdeskSelect = document.getElementById('assign-helpdesk');
+        const techSelect = document.getElementById('assign-tech');
+        masterData.staff.forEach(s => {
+            helpdeskSelect.innerHTML += `<option value="${s}">${s}</option>`;
+            techSelect.innerHTML += `<option value="${s}">${s}</option>`;
+        });
+        
+        const categorySelect = document.getElementById('comp-category');
+        categorySelect.innerHTML = '<option value="">-- เลือก --</option>';
+        masterData.groups.forEach(g => categorySelect.innerHTML += `<option value="${g.code}">${g.code} - ${g.name}</option>`);
+        
+        const systemSelect = document.getElementById('comp-system');
+        systemSelect.innerHTML = '<option value="">-- เลือก --</option>';
+        masterData.systems.forEach(s => systemSelect.innerHTML += `<option value="${s.code}">${s.code} - ${s.name}</option>`);
+        
+        const separateSelect = document.getElementById('comp-separate');
+        separateSelect.innerHTML = '<option value="">-- เลือก --</option>';
+        masterData.separateDetail.forEach(s => separateSelect.innerHTML += `<option value="${s.code}">${s.name} - ${s.desc}</option>`);
+        
+        const equipSelect = document.getElementById('comp-equipment');
+        equipSelect.innerHTML = '<option value="">-- เลือก --</option>';
+        masterData.equipment.forEach(e => equipSelect.innerHTML += `<option value="${e.code}">${e.code} - ${e.name.substring(0,30)}</option>`);
+    }
+    
+    // ============================================
+    // RENDER MASTER DATA
+    // ============================================
+    
+    function renderMasterData() {
+        document.getElementById('db-floors').innerHTML = masterData.floors.map(f => 
+            `<div class="p-2 rounded text-sm" style="background: rgba(0,245,255,0.1);">${f}</div>`).join('');
+        
+        document.getElementById('db-types').innerHTML = masterData.typeAreas.map(t => 
+            `<div class="p-2 rounded text-sm" style="background: rgba(16,185,129,0.1);">${t}</div>`).join('');
+        
+        document.getElementById('db-staff').innerHTML = masterData.staff.map(s => 
+            `<div class="p-2 rounded text-sm" style="background: rgba(245,158,11,0.1);">${s}</div>`).join('');
+        
+        document.getElementById('db-groups').innerHTML = masterData.groups.map(g => 
+            `<div class="p-2 rounded text-sm" style="background: rgba(59,130,246,0.1);"><strong>${g.code}</strong> - ${g.name}</div>`).join('');
+        
+        document.getElementById('db-systems').innerHTML = masterData.systems.map(s => 
+            `<div class="p-2 rounded text-sm" style="background: rgba(239,68,68,0.1);"><strong>${s.code}</strong> - ${s.name}</div>`).join('');
+        
+        document.getElementById('db-separate').innerHTML = masterData.separateDetail.map(s => 
+            `<div class="p-2 rounded text-sm" style="background: rgba(168,85,247,0.1);"><strong>${s.code}</strong><br><small style="color:var(--text-secondary);">${s.desc}</small></div>`).join('');
+        
+        document.getElementById('db-emergency').innerHTML = masterData.emergencyCodes.map(e => {
+            const colors = { red: 'rgba(239,68,68,0.2)', orange: 'rgba(245,158,11,0.2)', blue: 'rgba(59,130,246,0.2)', green: 'rgba(16,185,129,0.2)' };
+            return `<div class="p-3 rounded text-center text-sm" style="background: ${colors[e.color]};"><strong>${e.code}</strong><br><small>${e.desc}</small></div>`;
+        }).join('');
+        
+        renderDepartmentsTable();
+        renderEquipmentTable();
+    }
+    
+    function renderDepartmentsTable() {
+        document.getElementById('db-departments-table').innerHTML = masterData.departments.map((d, i) => `
+            <tr>
+                <td>${d.mainArea}</td>
+                <td>${d.department}</td>
+                <td>${d.floor}</td>
+                <td>${d.typeArea}</td>
+                <td>${d.internalTel}</td>
+                <td>${d.externalTel}</td>
+                <td><button onclick="deleteMasterItem('departments', ${i})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+        `).join('') || '<tr><td colspan="7" class="text-center py-4" style="color:var(--text-secondary);">No data</td></tr>';
+    }
+    
+    function renderEquipmentTable() {
+        document.getElementById('db-equipment-table').innerHTML = masterData.equipment.map((e, i) => `
+            <tr>
+                <td title="${e.name}">${e.name.substring(0, 25)}...</td>
+                <td>${e.floor}</td>
+                <td>${e.dept}</td>
+                <td>${e.subArea}</td>
+                <td>${e.system}</td>
+                <td>${e.subSystem}</td>
+                <td>${e.group.substring(0, 15)}...</td>
+                <td class="font-mono text-xs">${e.code}</td>
+                <td><button onclick="deleteMasterItem('equipment', ${i})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+        `).join('') || '<tr><td colspan="9" class="text-center py-4" style="color:var(--text-secondary);">No data</td></tr>';
+    }
+    
+    function deleteMasterItem(type, index) {
+        masterData[type].splice(index, 1);
+        if (type === 'departments') renderDepartmentsTable();
+        else if (type === 'equipment') renderEquipmentTable();
+        else renderMasterData();
+        showToast('Item deleted', 'success');
+    }
+    
+    // ============================================
+    // ADD DATA MODAL
+    // ============================================
+    
+    function openAddModal(type) {
+        document.getElementById('add-type').value = type;
+        const titles = { floors: 'Add Floor', typeAreas: 'Add Type Area', staff: 'Add Staff', separateDetail: 'Add Separate Detail', departments: 'Add Department', equipment: 'Add Equipment' };
+        document.getElementById('add-modal-title').textContent = titles[type] || 'Add Data';
+        
+        let fields = '';
+        if (type === 'floors' || type === 'typeAreas' || type === 'staff') {
+            fields = `<div class="form-group"><label>Value</label><input type="text" id="add-value" class="cyber-input" required></div>`;
+        } else if (type === 'separateDetail') {
+            fields = `
+                <div class="form-group"><label>Code</label><input type="text" id="add-sep-code" class="cyber-input" required></div>
+                <div class="form-group"><label>Name</label><input type="text" id="add-sep-name" class="cyber-input" required></div>
+                <div class="form-group"><label>Description</label><input type="text" id="add-sep-desc" class="cyber-input" required></div>`;
+        } else if (type === 'departments') {
+            fields = `
+                <div class="form-grid">
+                    <div class="form-group"><label>Main Area</label><input type="text" id="add-dept-area" class="cyber-input" required></div>
+                    <div class="form-group"><label>Department</label><input type="text" id="add-dept-name" class="cyber-input" required></div>
+                    <div class="form-group"><label>Floor</label><input type="text" id="add-dept-floor" class="cyber-input" required></div>
+                    <div class="form-group"><label>Type Area</label><input type="text" id="add-dept-type" class="cyber-input" required></div>
+                    <div class="form-group"><label>Internal Tel</label><input type="text" id="add-dept-int-tel" class="cyber-input"></div>
+                    <div class="form-group"><label>External Tel</label><input type="text" id="add-dept-ext-tel" class="cyber-input"></div>
+                </div>`;
+        } else if (type === 'equipment') {
+            fields = `
+                <div class="form-grid">
+                    <div class="form-group col-span-full"><label>Equipment Name</label><input type="text" id="add-eq-name" class="cyber-input" required></div>
+                    <div class="form-group"><label>Floor</label><input type="text" id="add-eq-floor" class="cyber-input" required></div>
+                    <div class="form-group"><label>Department</label><input type="text" id="add-eq-dept" class="cyber-input" required></div>
+                    <div class="form-group"><label>Sub Area</label><input type="text" id="add-eq-subarea" class="cyber-input" required></div>
+                    <div class="form-group"><label>System</label><input type="text" id="add-eq-system" class="cyber-input" required></div>
+                    <div class="form-group"><label>Sub-System</label><input type="text" id="add-eq-subsystem" class="cyber-input" required></div>
+                    <div class="form-group"><label>Group</label><input type="text" id="add-eq-group" class="cyber-input" required></div>
+                    <div class="form-group"><label>Code</label><input type="text" id="add-eq-code" class="cyber-input" required></div>
+                </div>`;
+        }
+        document.getElementById('add-form-fields').innerHTML = fields;
+        openModal('add-modal');
+    }
+    
+    document.getElementById('add-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const type = document.getElementById('add-type').value;
+        
+        if (type === 'floors' || type === 'typeAreas' || type === 'staff') {
+            masterData[type].push(document.getElementById('add-value').value);
+        } else if (type === 'separateDetail') {
+            masterData.separateDetail.push({
+                code: document.getElementById('add-sep-code').value,
+                name: document.getElementById('add-sep-name').value,
+                desc: document.getElementById('add-sep-desc').value
+            });
+        } else if (type === 'departments') {
+            masterData.departments.push({
+                mainArea: document.getElementById('add-dept-area').value,
+                department: document.getElementById('add-dept-name').value,
+                floor: document.getElementById('add-dept-floor').value,
+                typeArea: document.getElementById('add-dept-type').value,
+                internalTel: document.getElementById('add-dept-int-tel').value,
+                externalTel: document.getElementById('add-dept-ext-tel').value
+            });
+            masterData.mainAreas.push(document.getElementById('add-dept-area').value);
+        } else if (type === 'equipment') {
+            masterData.equipment.push({
+                name: document.getElementById('add-eq-name').value,
+                floor: document.getElementById('add-eq-floor').value,
+                dept: document.getElementById('add-eq-dept').value,
+                subArea: document.getElementById('add-eq-subarea').value,
+                system: document.getElementById('add-eq-system').value,
+                subSystem: document.getElementById('add-eq-subsystem').value,
+                group: document.getElementById('add-eq-group').value,
+                code: document.getElementById('add-eq-code').value
+            });
+        }
+        
+        renderMasterData();
+        populateDropdowns();
+        closeModal('add-modal');
+        showToast('Data added successfully', 'success');
+    });
+    
+    // ============================================
+    // IMPORT EXCEL
+    // ============================================
+    
+    function handleDragOver(e) { e.preventDefault(); document.getElementById('import-dropzone').classList.add('dragover'); }
+    function handleDragLeave(e) { e.preventDefault(); document.getElementById('import-dropzone').classList.remove('dragover'); }
+    function handleDrop(e) { e.preventDefault(); handleDragLeave(e); if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]); }
+    function handleFileSelect(e) { if (e.target.files.length) processFile(e.target.files[0]); }
+    
+    function processFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const workbook = XLSX.read(e.target.result, { type: 'binary' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                importData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                showImportPreview();
+            } catch (err) {
+                showToast('Error reading file', 'error');
+            }
+        };
+        reader.readAsBinaryString(file);
+    }
+    
+    function showImportPreview() {
+        if (!importData || importData.length < 2) { showToast('No data found', 'warning'); return; }
+        const headers = importData[0];
+        const rows = importData.slice(1, 6);
+        
+        let html = '<thead><tr>' + headers.map(h => `<th>${h || ''}</th>`).join('') + '</tr></thead>';
+        html += '<tbody>' + rows.map(row => '<tr>' + headers.map((_, i) => `<td>${row[i] || ''}</td>`).join('') + '</tr>').join('') + '</tbody>';
+        
+        document.getElementById('import-preview-table').innerHTML = html;
+        document.getElementById('import-preview').classList.remove('hidden');
+    }
+    
+    function confirmImport() {
+        const type = document.getElementById('import-type').value;
+        const headers = importData[0];
+        const rows = importData.slice(1).filter(row => row.some(cell => cell));
+        
+        if (type === 'departments') {
+            rows.forEach(row => {
+                masterData.departments.push({
+                    mainArea: row[0] || '', department: row[1] || '', floor: row[2] || '',
+                    typeArea: row[3] || '', internalTel: row[4] || '', externalTel: row[5] || ''
+                });
+                if (row[0] && !masterData.mainAreas.includes(row[0])) masterData.mainAreas.push(row[0]);
+            });
+        } else if (type === 'equipment') {
+            rows.forEach(row => {
+                masterData.equipment.push({
+                    name: row[0] || '', floor: row[1] || '', dept: row[2] || '', subArea: row[3] || '',
+                    system: row[4] || '', subSystem: row[5] || '', group: row[6] || '', code: row[7] || ''
+                });
+            });
+        } else if (type === 'staff') {
+            rows.forEach(row => { if (row[0]) masterData.staff.push(row[0]); });
+        }
+        
+        renderMasterData();
+        populateDropdowns();
+        cancelImport();
+        showToast(`Imported ${rows.length} records`, 'success');
+    }
+    
+    function cancelImport() {
+        importData = null;
+        document.getElementById('import-preview').classList.add('hidden');
+        document.getElementById('import-file').value = '';
+    }
+    
+    // ============================================
+    // RENDER ALL
+    // ============================================
+    
+    function renderAll() {
+        renderDashboard();
+        renderPendingList();
+        renderProcessList();
+        renderKanban();
+        renderHistory();
+    }
+    
+    // ============================================
+    // DASHBOARD
+    // ============================================
+    
+    function renderDashboard() {
+        const pending = allData.filter(wo => wo.work_progress === 'Pending');
+        const onProcess = allData.filter(wo => wo.work_progress === 'On Process');
+        const complete = allData.filter(wo => wo.work_progress === 'Complete');
+        const urgent = allData.filter(wo => wo.priority_work?.includes('Critical') || wo.priority_work?.includes('High'));
+        
+        document.getElementById('stat-total').textContent = allData.length;
+        document.getElementById('stat-pending').textContent = pending.length;
+        document.getElementById('stat-process').textContent = onProcess.length;
+        document.getElementById('stat-complete').textContent = complete.length;
+        document.getElementById('stat-urgent').textContent = urgent.length;
+        
+        renderCharts();
+        renderRecentWO();
+    }
+    
+    function renderCharts() {
+        const textColor = isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)';
+        const pending = allData.filter(wo => wo.work_progress === 'Pending').length;
+        const onProcess = allData.filter(wo => wo.work_progress === 'On Process').length;
+        const complete = allData.filter(wo => wo.work_progress === 'Complete').length;
+        
+        if (chartStatus) chartStatus.destroy();
+        chartStatus = new Chart(document.getElementById('chart-status'), {
+            type: 'doughnut',
+            data: { labels: ['Pending', 'On Process', 'Complete'], datasets: [{ data: [pending || 1, onProcess, complete], backgroundColor: ['#f59e0b', '#3b82f6', '#10b981'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: textColor } } } }
+        });
+        
+        const systemCounts = {};
+        masterData.systems.forEach(s => systemCounts[s.code] = 0);
+        allData.forEach(wo => { if (wo.system_work && systemCounts.hasOwnProperty(wo.system_work)) systemCounts[wo.system_work]++; });
+        
+        if (chartSystem) chartSystem.destroy();
+        chartSystem = new Chart(document.getElementById('chart-system'), {
+            type: 'bar',
+            data: { labels: Object.keys(systemCounts), datasets: [{ label: 'WO', data: Object.values(systemCounts), backgroundColor: 'rgba(0,245,255,0.6)', borderRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: textColor } }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: textColor } } } }
+        });
+    }
+    
+    function renderRecentWO() {
+        const tbody = document.getElementById('recent-wo-table');
+        const recent = allData.slice(-8).reverse();
+        
+        if (!recent.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6" style="color:var(--text-secondary);">No work orders yet</td></tr>'; return; }
+        
+        tbody.innerHTML = recent.map(wo => `
+            <tr onclick="showWODetail('${wo.__backendId}')" style="cursor:pointer;">
+                <td class="font-mono" style="color:var(--accent-cyan);">${wo.work_request_no}</td>
+                <td>${wo.date || '-'}</td>
+                <td>${wo.building_name || '-'}</td>
+                <td>${wo.main_area?.substring(0, 15) || '-'}...</td>
+                <td>${wo.job_detail?.substring(0, 20) || '-'}...</td>
+                <td><span class="badge badge-${getPriorityClass(wo.priority_work)}">${wo.priority_work?.split('<')[0] || '-'}</span></td>
+                <td><span class="badge ${getStatusBadge(wo.work_progress)}">${wo.work_progress || 'Pending'}</span></td>
+                <td><button class="w-7 h-7 rounded flex items-center justify-center" style="background:rgba(0,245,255,0.1);color:var(--accent-cyan);"><i class="fa-solid fa-eye text-xs"></i></button></td>
+            </tr>
+        `).join('');
+    }
+    
+    // ============================================
+    // REQUEST FORM
+    // ============================================
+    
+    document.getElementById('request-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-request-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่ง...';
+        
+        const woData = {
+            type: 'workorder',
+            work_request_no: generateWONumber(),
+            date: document.getElementById('req-date').value,
+            notification_time: document.getElementById('req-time').value,
+            building_name: document.getElementById('req-building').value,
+            main_floor: document.getElementById('req-floor').value,
+            main_area: document.getElementById('req-main-area').value,
+            main_department: document.getElementById('req-department').value,
+            type_area: document.getElementById('req-type-area').value,
+            room_no: document.getElementById('req-room').value,
+            job_detail: document.getElementById('req-job-detail').value,
+            code_emergency: document.getElementById('req-emergency').value,
+            period_time: document.getElementById('req-period').value,
+            priority_work: document.getElementById('req-priority').value,
+            staff_notification_name: document.getElementById('req-staff-name').value,
+            phone_number: document.getElementById('req-phone').value,
+            work_progress: 'Pending',
+            created_at: new Date().toISOString()
+        };
+        
+        if (window.dataSdk) {
+            if (allData.length >= 999) { showToast('ถึงขีดจำกัดข้อมูล (999)', 'error'); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ส่งใบแจ้งซ่อม'; return; }
+            const result = await window.dataSdk.create(woData);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ส่งใบแจ้งซ่อม';
+            if (result.isOk) { showToast(`สร้าง ${woData.work_request_no} สำเร็จ!`, 'success'); clearRequestForm(); woCounter++; }
+            else showToast('เกิดข้อผิดพลาด', 'error');
+        } else { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ส่งใบแจ้งซ่อม'; showToast('Demo mode', 'info'); }
+    });
+    
+    function clearRequestForm() { document.getElementById('request-form').reset(); setDefaultDates(); }
+    
+    // ============================================
+    // HELPDESK & TECHNICIAN
+    // ============================================
+    
+    function renderPendingList() {
+        const container = document.getElementById('pending-wo-list');
+        const pending = allData.filter(wo => wo.work_progress === 'Pending');
+        if (!pending.length) { container.innerHTML = '<div class="text-center py-8 col-span-full" style="color:var(--text-secondary);"><i class="fa-solid fa-inbox text-4xl mb-3 opacity-30"></i><p>ไม่มีงานรอรับ</p></div>'; return; }
+        container.innerHTML = pending.map(wo => `
+            <div class="wo-card ${getPriorityClass(wo.priority_work)}" onclick="openAssignModal('${wo.__backendId}')">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-mono font-bold text-sm" style="color:var(--accent-cyan);">${wo.work_request_no}</span>
+                    <span class="badge badge-${getPriorityClass(wo.priority_work)}">${wo.priority_work?.split('<')[0] || '-'}</span>
+                </div>
+                <p class="text-sm mb-2" style="color:var(--text-primary);">${wo.job_detail?.substring(0, 40) || '-'}...</p>
+                <div class="flex justify-between text-xs" style="color:var(--text-secondary);"><span><i class="fa-solid fa-building mr-1"></i>${wo.building_name}</span><span>${wo.notification_time}</span></div>
+            </div>
+        `).join('');
+    }
+    
+    function openAssignModal(id) {
+        const wo = allData.find(w => w.__backendId === id);
+        if (!wo) return;
+        currentWO = wo;
+        document.getElementById('assign-wo-id').value = id;
+        document.getElementById('assign-wo-info').innerHTML = `<div class="flex justify-between mb-1"><span class="font-mono font-bold" style="color:var(--accent-cyan);">${wo.work_request_no}</span><span class="badge badge-${getPriorityClass(wo.priority_work)}">${wo.priority_work?.split('<')[0]}</span></div><p class="text-sm">${wo.job_detail}</p>`;
+        openModal('assign-modal');
+    }
+    
+    document.getElementById('assign-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const wo = allData.find(w => w.__backendId === document.getElementById('assign-wo-id').value);
+        if (!wo) return;
+        const updated = { ...wo, helpdesk_evaluate: document.getElementById('assign-evaluate').value, helpdesk_name: document.getElementById('assign-helpdesk').value, assign_technician: document.getElementById('assign-tech').value, technician_name: document.getElementById('assign-tech').value, technician_time: document.getElementById('assign-time').value, work_progress: 'On Process' };
+        if (window.dataSdk) {
+            const result = await window.dataSdk.update(updated);
+            if (result.isOk) { showToast('มอบหมายงานสำเร็จ', 'success'); closeModal('assign-modal'); }
+            else showToast('Error', 'error');
+        }
+    });
+    
+    function renderProcessList() {
+        const container = document.getElementById('process-wo-list');
+        const process = allData.filter(wo => wo.work_progress === 'On Process');
+        if (!process.length) { container.innerHTML = '<div class="text-center py-8 col-span-full" style="color:var(--text-secondary);"><i class="fa-solid fa-tools text-4xl mb-3 opacity-30"></i><p>ไม่มีงานกำลังดำเนินการ</p></div>'; return; }
+        container.innerHTML = process.map(wo => `
+            <div class="wo-card ${getPriorityClass(wo.priority_work)}">
+                <div class="flex justify-between mb-2">
+                    <span class="font-mono font-bold text-sm" style="color:var(--accent-cyan);">${wo.work_request_no}</span>
+                    <span class="badge badge-process">On Process</span>
+                </div>
+                <p class="text-sm mb-2">${wo.job_detail?.substring(0, 40) || '-'}...</p>
+                <div class="text-xs mb-3" style="color:var(--text-secondary);"><i class="fa-solid fa-user-gear mr-1"></i>${wo.technician_name || '-'}</div>
+                <button onclick="openCompleteModal('${wo.__backendId}')" class="cyber-btn cyber-btn-success w-full text-sm py-2"><i class="fa-solid fa-check-double"></i> ปิดงาน</button>
+            </div>
+        `).join('');
+    }
+    
+    function openCompleteModal(id) {
+        const wo = allData.find(w => w.__backendId === id);
+        if (!wo) return;
+        currentWO = wo;
+        document.getElementById('complete-wo-id').value = id;
+        document.getElementById('complete-wo-info').innerHTML = `<span class="font-mono font-bold" style="color:var(--accent-cyan);">${wo.work_request_no}</span> - ${wo.job_detail?.substring(0, 50)}`;
+        setDefaultDates();
+        openModal('complete-modal');
+    }
+    
+    document.getElementById('complete-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const wo = allData.find(w => w.__backendId === document.getElementById('complete-wo-id').value);
+        if (!wo) return;
+        const startTime = document.getElementById('comp-start').value;
+        const finishTime = document.getElementById('comp-finish').value;
+        let totalMinutes = 0;
+        if (startTime && finishTime) {
+            const [sh, sm] = startTime.split(':').map(Number);
+            const [fh, fm] = finishTime.split(':').map(Number);
+            totalMinutes = (fh * 60 + fm) - (sh * 60 + sm);
+        }
+        
+        const updated = {
+            ...wo,
+            work_date_actual: document.getElementById('comp-date').value,
+            start_time: startTime,
+            finish_time: finishTime,
+            total_convert_time: totalMinutes,
+            man_power: parseInt(document.getElementById('comp-manpower').value) || 1,
+            category_work: document.getElementById('comp-category').value,
+            system_work: document.getElementById('comp-system').value,
+            separate_detail: document.getElementById('comp-separate').value,
+            equipment_code: document.getElementById('comp-equipment').value,
+            labour_cost: parseFloat(document.getElementById('comp-labour').value) || 0,
+            job_detail_fixed: document.getElementById('comp-detail').value,
+            spare_part: document.getElementById('comp-spare').value,
+            spare_part_amount: parseInt(document.getElementById('comp-spare-amount').value) || 0,
+            spare_part_cost: parseFloat(document.getElementById('comp-spare-cost').value) || 0,
+            result: document.getElementById('comp-result').value,
+            customer_satisfy: document.getElementById('comp-satisfy').value,
+            note: document.getElementById('comp-note').value,
+            work_progress: 'Complete'
+        };
+        
+        if (window.dataSdk) {
+            const result = await window.dataSdk.update(updated);
+            if (result.isOk) { showToast('ปิดงานสำเร็จ!', 'success'); closeModal('complete-modal'); }
+            else showToast('Error', 'error');
+        }
+    });
+    
+    // ============================================
+    // KANBAN & HISTORY
+    // ============================================
+    
+    function renderKanban() {
+        const pending = allData.filter(wo => wo.work_progress === 'Pending');
+        const process = allData.filter(wo => wo.work_progress === 'On Process');
+        const complete = allData.filter(wo => wo.work_progress === 'Complete');
+        
+        document.getElementById('kanban-pending-count').textContent = pending.length;
+        document.getElementById('kanban-process-count').textContent = process.length;
+        document.getElementById('kanban-complete-count').textContent = complete.length;
+        
+        const renderCards = (items) => items.slice(-10).map(wo => `
+            <div class="wo-card ${getPriorityClass(wo.priority_work)}" onclick="showWODetail('${wo.__backendId}')">
+                <div class="flex justify-between mb-1"><span class="font-mono text-xs font-bold" style="color:var(--accent-cyan);">${wo.work_request_no}</span></div>
+                <p class="text-xs">${wo.job_detail?.substring(0, 30) || '-'}...</p>
+            </div>
+        `).join('');
+        
+        document.getElementById('kanban-pending').innerHTML = pending.length ? renderCards(pending) : '<p class="text-center text-xs" style="color:var(--text-secondary);">No items</p>';
+        document.getElementById('kanban-process').innerHTML = process.length ? renderCards(process) : '<p class="text-center text-xs" style="color:var(--text-secondary);">No items</p>';
+        document.getElementById('kanban-complete').innerHTML = complete.length ? renderCards(complete.reverse()) : '<p class="text-center text-xs" style="color:var(--text-secondary);">No items</p>';
+    }
+    
+    function renderHistory() { filterHistory(); }
+    
+    function filterHistory() {
+        const search = document.getElementById('history-search')?.value?.toLowerCase() || '';
+        const status = document.getElementById('history-status')?.value || '';
+        
+        let filtered = allData.filter(wo => {
+            const matchSearch = !search || wo.work_request_no?.toLowerCase().includes(search) || wo.job_detail?.toLowerCase().includes(search);
+            const matchStatus = !status || wo.work_progress === status;
+            return matchSearch && matchStatus;
+        });
+        
+        const tbody = document.getElementById('history-table');
+        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8" style="color:var(--text-secondary);">No work orders found</td></tr>'; return; }
+        
+        tbody.innerHTML = filtered.reverse().map(wo => `
+            <tr onclick="showWODetail('${wo.__backendId}')" style="cursor:pointer;">
+                <td class="font-mono" style="color:var(--accent-cyan);">${wo.work_request_no}</td>
+                <td>${wo.date || '-'}</td>
+                <td>${wo.building_name || '-'}</td>
+                <td>${wo.main_area?.substring(0, 12) || '-'}...</td>
+                <td>${wo.job_detail?.substring(0, 15) || '-'}...</td>
+                <td>${wo.staff_notification_name?.substring(0, 10) || '-'}</td>
+                <td>${wo.technician_name?.substring(0, 10) || '-'}</td>
+                <td><span class="badge badge-${getPriorityClass(wo.priority_work)}">${wo.priority_work?.split('<')[0] || '-'}</span></td>
+                <td><span class="badge ${getStatusBadge(wo.work_progress)}">${wo.work_progress || 'Pending'}</span></td>
+            </tr>
+        `).join('');
+    }
+    
+    // ============================================
+    // STAFF UTILIZATION
+    // ============================================
+    
+    function renderStaffUtilization() {
+        const staffJobs = {};
+        const staffHours = {};
+        masterData.staff.forEach(s => { staffJobs[s] = 0; staffHours[s] = 0; });
+        
+        allData.forEach(wo => {
+            if (wo.technician_name && staffJobs.hasOwnProperty(wo.technician_name)) {
+                staffJobs[wo.technician_name]++;
+                staffHours[wo.technician_name] += (wo.total_convert_time || 0) / 60;
+            }
+        });
+        
+        const activeStaff = Object.values(staffJobs).filter(v => v > 0).length;
+        const totalJobs = allData.length;
+        const totalHours = Object.values(staffHours).reduce((a, b) => a + b, 0);
+        
+        document.getElementById('staff-total').textContent = masterData.staff.length;
+        document.getElementById('staff-active').textContent = activeStaff;
+        document.getElementById('staff-avg-jobs').textContent = masterData.staff.length ? (totalJobs / masterData.staff.length).toFixed(1) : 0;
+        document.getElementById('staff-total-hours').textContent = totalHours.toFixed(1);
+        
+        const textColor = isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)';
+        if (chartStaffUtil) chartStaffUtil.destroy();
+        chartStaffUtil = new Chart(document.getElementById('chart-staff-util'), {
+            type: 'bar',
+            data: { labels: masterData.staff.map(s => s.split(' ')[0]), datasets: [{ label: 'Jobs', data: Object.values(staffJobs), backgroundColor: 'rgba(0,245,255,0.6)', borderRadius: 8 }] },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: textColor } }, y: { grid: { display: false }, ticks: { color: textColor } } } }
+        });
+        
+        document.getElementById('staff-performance-list').innerHTML = masterData.staff.map(s => {
+            const jobs = staffJobs[s];
+            const hours = staffHours[s].toFixed(1);
+            const percent = totalJobs ? (jobs / totalJobs * 100).toFixed(0) : 0;
+            return `
+                <div class="p-4 rounded-lg" style="background:rgba(0,0,0,0.2);">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-semibold">${s}</span>
+                        <span class="text-xs" style="color:var(--text-secondary);">${jobs} jobs | ${hours}h</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill" style="width:${percent}%;background:linear-gradient(90deg,#00f5ff,#a855f7);"></div></div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // ============================================
+    // MTBF/MTTR ANALYSIS
+    // ============================================
+    
+    function renderMTBFMTTR() {
+        const completed = allData.filter(wo => wo.work_progress === 'Complete' && wo.total_convert_time);
+        const totalFailures = completed.length;
+        const totalRepairTime = completed.reduce((sum, wo) => sum + (wo.total_convert_time || 0), 0);
+        const mttr = totalFailures > 0 ? (totalRepairTime / totalFailures).toFixed(1) : '-';
+        const mtbf = totalFailures > 1 ? ((30 * 24 * 60) / totalFailures / 60).toFixed(1) : '-';
+        const availability = mtbf !== '-' && mttr !== '-' ? ((parseFloat(mtbf) / (parseFloat(mtbf) + parseFloat(mttr) / 60)) * 100).toFixed(1) : '-';
+        
+        document.getElementById('mtbf-value').textContent = mtbf;
+        document.getElementById('mttr-value').textContent = mttr;
+        document.getElementById('availability-value').textContent = availability !== '-' ? `${availability}%` : '-';
+        document.getElementById('total-failures').textContent = totalFailures;
+        
+        const textColor = isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)';
+        
+        // MTTR by System
+        const mttrBySystem = {};
+        masterData.systems.forEach(s => mttrBySystem[s.code] = { total: 0, count: 0 });
+        completed.forEach(wo => {
+            if (wo.system_work && mttrBySystem[wo.system_work]) {
+                mttrBySystem[wo.system_work].total += wo.total_convert_time || 0;
+                mttrBySystem[wo.system_work].count++;
+            }
+        });
+        
+        if (chartMttrSystem) chartMttrSystem.destroy();
+        chartMttrSystem = new Chart(document.getElementById('chart-mttr-system'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(mttrBySystem),
+                datasets: [{ label: 'Avg MTTR (min)', data: Object.values(mttrBySystem).map(v => v.count ? (v.total / v.count).toFixed(1) : 0), backgroundColor: 'rgba(245,158,11,0.6)', borderRadius: 8 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: textColor } }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: textColor } } } }
+        });
+        
+        // Failure Trend
+        if (chartFailureTrend) chartFailureTrend.destroy();
+        chartFailureTrend = new Chart(document.getElementById('chart-failure-trend'), {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{ label: 'Failures', data: [Math.floor(totalFailures * 0.2), Math.floor(totalFailures * 0.3), Math.floor(totalFailures * 0.25), Math.floor(totalFailures * 0.25)], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.2)', fill: true, tension: 0.4 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: textColor } }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: textColor } } } }
+        });
+        
+        // System Reliability
+        document.getElementById('system-reliability-list').innerHTML = masterData.systems.map(s => {
+            const data = mttrBySystem[s.code];
+            const avgMttr = data.count ? (data.total / data.count).toFixed(0) : 0;
+            const reliability = data.count > 0 ? Math.max(0, 100 - (data.count * 5)).toFixed(0) : 100;
+            return `
+                <div class="metric-card">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold">${s.code}</span>
+                        <span class="text-xs badge badge-${reliability > 80 ? 'complete' : reliability > 50 ? 'pending' : 'urgent'}">${reliability}%</span>
+                    </div>
+                    <div class="text-xs mb-2" style="color:var(--text-secondary);">${s.name}</div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>Failures: <strong>${data.count}</strong></div>
+                        <div>Avg MTTR: <strong>${avgMttr}m</strong></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // ============================================
+    // WO DETAIL
+    // ============================================
+    
+    function showWODetail(id) {
+        const wo = allData.find(w => w.__backendId === id);
+        if (!wo) return;
+        
+        document.getElementById('wo-detail-content').innerHTML = `
+            <div class="flex justify-between mb-4">
+                <span class="font-mono text-xl font-bold" style="color:var(--accent-cyan);">${wo.work_request_no}</span>
+                <span class="badge ${getStatusBadge(wo.work_progress)}">${wo.work_progress}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
+                <div class="p-3 rounded-lg" style="background:rgba(0,245,255,0.1);"><span style="color:var(--text-secondary);">วันที่</span><br><strong>${wo.date} ${wo.notification_time}</strong></div>
+                <div class="p-3 rounded-lg" style="background:rgba(168,85,247,0.1);"><span style="color:var(--text-secondary);">Priority</span><br><strong>${wo.priority_work}</strong></div>
+            </div>
+            <div class="p-3 rounded-lg mb-4" style="background:rgba(0,0,0,0.2);"><p class="text-xs mb-1" style="color:var(--text-secondary);">รายละเอียดงาน</p><p>${wo.job_detail}</p></div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div><span style="color:var(--text-secondary);">อาคาร:</span> ${wo.building_name}</div>
+                <div><span style="color:var(--text-secondary);">ชั้น:</span> ${wo.main_floor}</div>
+                <div><span style="color:var(--text-secondary);">พื้นที่:</span> ${wo.main_area}</div>
+                <div><span style="color:var(--text-secondary);">แผนก:</span> ${wo.main_department || '-'}</div>
+                <div><span style="color:var(--text-secondary);">ผู้แจ้ง:</span> ${wo.staff_notification_name}</div>
+                <div><span style="color:var(--text-secondary);">ช่าง:</span> ${wo.technician_name || '-'}</div>
+            </div>
+            ${wo.work_progress === 'Complete' ? `
+                <div class="border-t pt-4 mt-4" style="border-color:var(--border-color);">
+                    <h4 class="font-bold mb-2 text-green-400">ผลการดำเนินการ</h4>
+                    <div class="p-3 rounded-lg mb-3" style="background:rgba(16,185,129,0.1);">${wo.job_detail_fixed || '-'}</div>
+                    <div class="grid grid-cols-3 gap-2 text-xs">
+                        <div>เวลา: <strong>${wo.total_convert_time || 0} นาที</strong></div>
+                        <div>ระบบ: <strong>${wo.system_work || '-'}</strong></div>
+                        <div>ความพึงพอใจ: <strong>${wo.customer_satisfy || '-'}</strong></div>
+                    </div>
+                </div>
+            ` : ''}
+        `;
+        openModal('wo-detail-modal');
+    }
+    
+    // Init
+    initApp();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b80b663e53efd7d',t:'MTc2NzQyNDYwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
